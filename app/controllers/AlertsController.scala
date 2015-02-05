@@ -6,19 +6,11 @@ import play.api.mvc._
 
 object AlertsController extends Controller {
   /**
-   * Create an alert
+   * Create or update an alert
+   * @param alertId Id of the alert to create/update
    * @return
    */
-  def create = Action {
-    implicit request => ???
-  }
-
-  /**
-   * Update an alert
-   * @param alertId Id of the alert to update
-   * @return
-   */
-  def update(alertId: UUID) = Action {
+  def createOrUpdate(alertId: UUID) = Action {
     implicit request => ???
   }
 
