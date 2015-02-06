@@ -5,7 +5,7 @@
 bin/
 /db
 .eclipse
-/lib/
+# /lib/
 /logs/
 /modules
 /project/project
