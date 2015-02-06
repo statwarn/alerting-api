@@ -21,9 +21,9 @@ case class AlertActionModel(
 }
 
 object AlertActionModel {
-  val simple = get[UUID]("alert_id") ~ str("action_id") ~ str("configuration") ~
+  val simple = get[UUID]("alert_id") ~ str("action_id") ~ ActionConfigurationModel.simple("configuration") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) map {
     case alert_id ~ action_id ~ configuration ~ createdAt ~ updatedAt ~ deletedAt =>
-      AlertActionModel(alert_id, action_id, Json.parse(configuration).as[ActionConfigurationModel], createdAt, updatedAt, deletedAt)
+      AlertActionModel(alert_id, action_id, configuration, createdAt, updatedAt, deletedAt)
   }
 }

@@ -11,8 +11,8 @@ case class ActionModel(
 }
 
 object ActionModel {
-  val simple = str("id") ~ str("defaultConfiguration") map {
+  val simple = str("id") ~ ActionConfigurationModel.simple("defaultConfiguration") map {
     case id ~ defaultConfiguration =>
-      ActionModel(id, Json.parse(defaultConfiguration).as[ActionConfigurationModel])
+      ActionModel(id, defaultConfiguration)
   }
 }
