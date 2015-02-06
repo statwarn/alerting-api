@@ -5,14 +5,14 @@ import anorm.SqlParser.str
 import play.api.libs.json.Json
 
 case class ActionModel(
-                        id: String,
+                        action_id: String,
                         defaultConfiguration: ActionConfigurationModel
                         ) {
 }
 
 object ActionModel {
-  val simple = str("id") ~ ActionConfigurationModel.simple("defaultConfiguration") map {
-    case id ~ defaultConfiguration =>
-      ActionModel(id, defaultConfiguration)
+  val simple = str("action_id") ~ ActionConfigurationModel.simple("defaultConfiguration") map {
+    case action_id ~ defaultConfiguration =>
+      ActionModel(action_id, defaultConfiguration)
   }
 }

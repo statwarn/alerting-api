@@ -9,11 +9,11 @@ import org.joda.time.DateTime
 import scala.language.postfixOps
 
 case class TriggerModel(
-                         id: UUID,
+                         trigger_id: UUID,
                          operator_id: String,
                          alert_id: UUID,
                          target_id: String,
-                         configuration: OperatorConfigurationModel,
+                         operator_configuration: OperatorConfigurationModel,
                          createdAt: DateTime,
                          updatedAt: DateTime,
                          deletedAt: Option[DateTime]
@@ -21,9 +21,9 @@ case class TriggerModel(
 }
 
 object TriggerModel {
-  val simple = get[UUID]("id") ~ str("operator_id") ~ get[UUID]("alert_id") ~ str("target_id") ~ OperatorConfigurationModel.simple("configuration") ~
+  val simple = get[UUID]("trigger_id") ~ str("operator_id") ~ get[UUID]("alert_id") ~ str("target_id") ~ OperatorConfigurationModel.simple("operator_configuration") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) map {
-    case id ~ operator_id ~ alert_id ~ target_id ~ configuration ~ createdAt ~ updatedAt ~ deletedAt =>
-      TriggerModel(id, operator_id, alert_id, target_id, configuration, createdAt, updatedAt, deletedAt)
+    case trigger_id ~ operator_id ~ alert_id ~ target_id ~ operator_configuration ~ createdAt ~ updatedAt ~ deletedAt =>
+      TriggerModel(trigger_id, operator_id, alert_id, target_id, operator_configuration, createdAt, updatedAt, deletedAt)
   }
 }

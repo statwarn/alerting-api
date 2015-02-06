@@ -7,7 +7,7 @@ import play.api.libs.json.Json
 import scala.language.postfixOps
 
 case class OperatorModel(
-                          id: String,
+                          operator_id: String,
                           defaultConfiguration: OperatorConfigurationModel
                           ) {
 }
@@ -18,8 +18,8 @@ object OperatorModel {
   /**
    * Simple Anorm RowParser to extract all fields from the 'operator' table
    */
-  val simple = str("id") ~ OperatorConfigurationModel.simple("defaultConfiguration") map {
-    case id ~ defaultConfiguration =>
-      OperatorModel(id, defaultConfiguration)
+  val simple = str("operator_id") ~ OperatorConfigurationModel.simple("defaultConfiguration") map {
+    case operator_id ~ defaultConfiguration =>
+      OperatorModel(operator_id, defaultConfiguration)
   }
 }

@@ -4,14 +4,14 @@ import anorm.~
 import anorm.SqlParser.{bool, str}
 
 case class TargetModel(
-                        id: String,
+                        target_id: String,
                         wildcard: Boolean
                         ) {
 }
 
 object TargetModel {
-  val simple = str("id") ~ bool("wildcard") map {
-    case id ~ wildcard =>
-      TargetModel(id, wildcard)
+  val simple = str("target_id") ~ bool("wildcard") map {
+    case target_id ~ wildcard =>
+      TargetModel(target_id, wildcard)
   }
 }

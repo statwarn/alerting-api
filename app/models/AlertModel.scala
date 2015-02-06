@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 import scala.language.postfixOps
 
 case class AlertModel(
-                       id: UUID,
+                       alert_id: UUID,
                        name: String,
                        createdAt: DateTime,
                        updatedAt: DateTime,
@@ -20,10 +20,10 @@ case class AlertModel(
 }
 
 object AlertModel {
-  val simple = get[UUID]("id") ~ str("name") ~
+  val simple = get[UUID]("alert_id") ~ str("name") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) ~
     bool("activated") ~ str("measurement_id") map {
-    case id ~ name ~ createdAt ~ updatedAt ~ deletedAt ~ activated ~ measurement_id =>
-      AlertModel(id, name, createdAt, updatedAt, deletedAt, activated, measurement_id)
+    case alert_id ~ name ~ createdAt ~ updatedAt ~ deletedAt ~ activated ~ measurement_id =>
+      AlertModel(alert_id, name, createdAt, updatedAt, deletedAt, activated, measurement_id)
   }
 }
