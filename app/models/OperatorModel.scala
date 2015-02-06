@@ -1,8 +1,10 @@
 package models
 
-import anorm.~
 import anorm.SqlParser.str
+import anorm.{SqlStringInterpolation, ~}
 import play.api.libs.json.Json
+
+import scala.language.postfixOps
 
 case class OperatorModel(
                           id: String,
@@ -10,9 +12,14 @@ case class OperatorModel(
                           ) {
 }
 
-object OperatorModel{
-  val simple = str("id") ~ str("defaultConfiguration") map {
+object OperatorModel {
+  implicit val jsonFormat = Json.format[OperatorModel]
+
+  /**
+   * Simple Anorm RowParser to extract all fields from the 'operator' table
+   */
+  val simple = str("id") ~ OperatorConfigurationModel.simple("defaultConfiguration") map {
     case id ~ defaultConfiguration =>
-      OperatorModel(id, Json.parse(defaultConfiguration).as[OperatorConfigurationModel])
+      OperatorModel(id, defaultConfiguration)
   }
 }
