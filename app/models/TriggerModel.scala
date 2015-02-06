@@ -13,6 +13,7 @@ case class TriggerModel(
                          operator_id: String,
                          alert_id: UUID,
                          target_id: String,
+                         target_value: String,
                          operator_configuration: OperatorConfigurationModel,
                          createdAt: DateTime,
                          updatedAt: DateTime,
@@ -21,9 +22,10 @@ case class TriggerModel(
 }
 
 object TriggerModel {
-  val simple = get[UUID]("trigger_id") ~ str("operator_id") ~ get[UUID]("alert_id") ~ str("target_id") ~ OperatorConfigurationModel.simple("operator_configuration") ~
+  val simple = get[UUID]("trigger_id") ~ str("operator_id") ~ get[UUID]("alert_id") ~ str("target_id") ~ str("target_value") ~
+    OperatorConfigurationModel.simple("operator_configuration") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) map {
-    case trigger_id ~ operator_id ~ alert_id ~ target_id ~ operator_configuration ~ createdAt ~ updatedAt ~ deletedAt =>
-      TriggerModel(trigger_id, operator_id, alert_id, target_id, operator_configuration, createdAt, updatedAt, deletedAt)
+    case trigger_id ~ operator_id ~ alert_id ~ target_id ~ target_value ~ operator_configuration ~ createdAt ~ updatedAt ~ deletedAt =>
+      TriggerModel(trigger_id, operator_id, alert_id, target_id, target_value, operator_configuration, createdAt, updatedAt, deletedAt)
   }
 }
