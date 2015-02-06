@@ -221,3 +221,8 @@ An `any_data` trigger is defined using the following JSON structure :
 Avoir une route qui liste les operators (et leurs capacités en fonction des triggers) -> modifier schéma de BDD
 
 A chaque fois que l’on envoie un point, il est possible de préciser en plus du data et du metadata un tags:[], ces tags seront automatiquement ajouté au set de tags de measurements.
+
+# Troubleshooting
+
+## - type "citext" does not exist
+Connect to the database using the "citext" type, and run "CREATE EXTENSION citext".
