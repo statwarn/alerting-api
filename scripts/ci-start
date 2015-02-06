@@ -1,0 +1,16 @@
+#!/bin/bash
+
+## Script to put in Jenkins:
+###############################
+## #!/bin/bash
+## cd $WORKSPACE
+## source ./scripts/ci-start
+###############################
+
+set -e
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd $DIR/..
+echo `pwd`
+
+./activator clean compile stage test
