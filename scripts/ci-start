@@ -1,0 +1,13 @@
+#!/bin/bash
+
+## Script to put in Jenkins:
+###############################
+## #!/bin/bash
+## cd $WORKSPACE
+## source ./scripts/ci-start
+###############################
+
+set -e
+DIR=${0%/*}
+cd $DIR/..
+./activator clean compile stage test
