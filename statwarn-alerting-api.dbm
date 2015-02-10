@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="0.8.0-beta1" last-position="794,681" last-zoom="1.9"
+	 default-schema="public" default-owner="postgres">
+<database name="statwarn-alerting">
+</database>
+
+<schema name="public" protected="true" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<table name="alert">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="600" y="483"/>
+	<column name="alert_id" not-null="true">
+		<type name="uuid"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="createdAt" not-null="true">
+		<type name="timestamptz"/>
+	</column>
+	<column name="updatedAt" not-null="true">
+		<type name="timestamptz"/>
+	</column>
+	<column name="deletedAt">
+		<type name="timestamptz"/>
+	</column>
+	<column name="activated" not-null="true" default-value="true">
+		<type name="boolean"/>
+	</column>
+	<column name="measurement_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<constraint name="alert_alert_id_pkey" type="pk-constr" table="public.alert">
+		<columns names="alert_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="action">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1380" y="480"/>
+	<column name="action_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="defaultConfiguration" not-null="true">
+		<type name="jsonb"/>
+	</column>
+	<constraint name="action_action_id_pkey" type="pk-constr" table="public.action">
+		<columns names="action_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="alert_action">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1020" y="480"/>
+	<column name="alert_id" not-null="true">
+		<type name="uuid"/>
+	</column>
+	<column name="action_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="action_configuration" not-null="true">
+		<type name="jsonb"/>
+	</column>
+	<column name="createdAt" not-null="true">
+		<type name="timestamptz"/>
+	</column>
+	<column name="updatedAt" not-null="true">
+		<type name="timestamptz"/>
+	</column>
+	<column name="deletedAt">
+		<type name="timestamptz"/>
+	</column>
+</table>
+
+<textbox name="action values" font-size="9">
+	<position x="1600" y="480"/>
+	<comment><![CDATA[id = "webhook"
+defaultConfiguration = {
+  ?
+}]]></comment>
+</textbox>
+
+<table name="trigger">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="692" y="701"/>
+	<column name="trigger_id" not-null="true">
+		<type name="uuid"/>
+	</column>
+	<column name="operator_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="alert_id" not-null="true">
+		<type name="uuid"/>
+	</column>
+	<column name="target_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="target_value" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="operator_configuration" not-null="true">
+		<type name="jsonb"/>
+	</column>
+	<column name="createdAt" not-null="true">
+		<type name="timestamptz"/>
+	</column>
+	<column name="updatedAt" not-null="true">
+		<type name="timestamptz"/>
+	</column>
+	<column name="deletedAt">
+		<type name="timestamptz"/>
+	</column>
+	<constraint name="trigger_trigger_id_pkey" type="pk-constr" table="public.trigger">
+		<columns names="trigger_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="operator">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1321.58" y="692.105"/>
+	<column name="operator_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="defaultConfiguration" not-null="true">
+		<type name="jsonb"/>
+	</column>
+	<constraint name="operator_operator_id_pkey" type="pk-constr" table="public.operator">
+		<columns names="operator_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="target">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1324.74" y="770.526"/>
+	<column name="target_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="wildcard" not-null="true">
+		<type name="boolean"/>
+	</column>
+	<constraint name="target_target_id_pkey" type="pk-constr" table="public.target">
+		<columns names="target_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="operator_target">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="1027.37" y="718.421"/>
+	<column name="operator_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<column name="target_id" not-null="true">
+		<type name="text"/>
+	</column>
+	<constraint name="operator_target_operator_id_target_id_key" type="uq-constr" table="public.operator_target">
+		<columns names="operator_id,target_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<constraint name="alert_action_alert_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.alert" table="public.alert_action">
+	<columns names="alert_id" ref-type="src-columns"/>
+	<columns names="alert_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="alert_action_action_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.action" table="public.alert_action">
+	<columns names="action_id" ref-type="src-columns"/>
+	<columns names="action_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="trigger_alert_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.alert" table="public.trigger">
+	<columns names="alert_id" ref-type="src-columns"/>
+	<columns names="alert_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="trigger_operator_id_target_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.operator_target" table="public.trigger">
+	<columns names="operator_id,target_id" ref-type="src-columns"/>
+	<columns names="operator_id,target_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="operator_target_operator_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.operator" table="public.operator_target">
+	<columns names="operator_id" ref-type="src-columns"/>
+	<columns names="operator_id" ref-type="dst-columns"/>
+</constraint>
+
+<constraint name="operator_target_target_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.target" table="public.operator_target">
+	<columns names="target_id" ref-type="src-columns"/>
+	<columns names="target_id" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="rel_alert_action_alert" type="relfk"
+	 src-table="public.alert_action"
+	 dst-table="public.alert"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_alert_action_action" type="relfk"
+	 src-table="public.alert_action"
+	 dst-table="public.action"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_operator_target_operator" type="relfk"
+	 src-table="public.operator_target"
+	 dst-table="public.operator"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_operator_target_target" type="relfk"
+	 src-table="public.operator_target"
+	 dst-table="public.target"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_trigger_alert" type="relfk"
+	 src-table="public.trigger"
+	 dst-table="public.alert"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_trigger_operator_target" type="relfk"
+	 src-table="public.trigger"
+	 dst-table="public.operator_target"
+	 src-required="false" dst-required="false"/>
+
+</dbmodel>
