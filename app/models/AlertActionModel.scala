@@ -8,7 +8,7 @@ import org.joda.time.DateTime
 
 import scala.language.postfixOps
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 case class AlertActionModel(
                              alert_id: UUID,
@@ -21,6 +21,8 @@ case class AlertActionModel(
 }
 
 object AlertActionModel {
+  implicit val jsonFormat: Format[AlertActionModel] = Json.format[AlertActionModel]
+
   val simple = get[UUID]("alert_id") ~ str("action_id") ~ ActionConfigurationModel.simple("action_configuration") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) map {
     case alert_id ~ action_id ~ action_configuration ~ createdAt ~ updatedAt ~ deletedAt =>

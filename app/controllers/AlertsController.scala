@@ -2,6 +2,10 @@ package controllers
 
 import java.util.UUID
 
+import models._
+import play.api.data.{Mapping, Forms, Form}
+import play.api.data.Forms._
+import play.api.libs.json.{JsObject, JsError, Json, JsValue}
 import play.api.mvc._
 
 object AlertsController extends Controller {
@@ -27,8 +31,13 @@ object AlertsController extends Controller {
    * @param alertId Id of the alert to create/update
    * @return
    */
-  def createOrUpdate(alertId: UUID) = Action {
-    implicit request => ???
+  def createOrUpdate(alertId: UUID) = Action(BodyParsers.parse.json) {
+    implicit request: Request[JsValue] =>
+      request.body.validate[AlertCreate].fold({
+        errors => BadRequest(JsError.toFlatJson(errors))
+      }, {
+        alertCreate => Ok(Json.toJson(AlertRepository.create(alertCreate)))
+      })
   }
 
   /**

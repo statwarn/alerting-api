@@ -5,6 +5,7 @@ import java.util.UUID
 import anorm.~
 import anorm.SqlParser.{get, str}
 import org.joda.time.DateTime
+import play.api.libs.json.{Format, Json}
 
 import scala.language.postfixOps
 
@@ -22,6 +23,8 @@ case class TriggerModel(
 }
 
 object TriggerModel {
+  implicit val jsonFormat: Format[TriggerModel] = Json.format[TriggerModel]
+
   val simple = get[UUID]("trigger_id") ~ str("operator_id") ~ get[UUID]("alert_id") ~ str("target_id") ~ str("target_value") ~
     OperatorConfigurationModel.simple("operator_configuration") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) map {
