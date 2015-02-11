@@ -3,6 +3,7 @@ package models
 import java.sql.Connection
 
 import anorm.SqlStringInterpolation
+import helpers.AnormUUID.uuidToStatement
 import play.api.db.DB
 import play.api.Play.current
 
@@ -37,7 +38,7 @@ object AlertRepository {
   private def insertAlert(alertCreate: AlertCreate)(implicit connection: Connection): AlertModel = {
     SQL"""
           INSERT INTO alert (alert_id, name, "createdAt", "updatedAt", activated, measurement_id)
-          VALUES (${alertCreate.alert_id}::UUID, ${alertCreate.name}, NOW(), NOW(), ${alertCreate.activated}, ${alertCreate.measurement_id}::UUID)
+          VALUES (${alertCreate.alert_id}, ${alertCreate.name}, NOW(), NOW(), ${alertCreate.activated}, ${alertCreate.measurement_id})
           RETURNING *
        """.as(AlertModel.simple.single)
   }
@@ -49,7 +50,7 @@ object AlertRepository {
 
     SQL"""
           INSERT INTO alert_action (alert_id, action_id, action_configuration, "createdAt", "updatedAt")
-          VALUES (${alertCreate.alert_id}::UUID, $actionType, $actionConfiguration::JSONB, NOW(), NOW())
+          VALUES (${alertCreate.alert_id}, $actionType, $actionConfiguration::JSONB, NOW(), NOW())
           RETURNING *
        """.as(AlertActionModel.simple.single)
   }
@@ -68,7 +69,7 @@ object AlertRepository {
 
     SQL"""
           INSERT INTO trigger (trigger_id, operator_id, alert_id, target_id, target_value, operator_configuration, "createdAt", "updatedAt")
-          VALUES (uuid_generate_v4(), $operatorName, ${alertCreate.alert_id}::UUID, ${targetModel.target_id}, ${triggerCreate.target}, $operatorConfiguration::JSONB, NOW(), NOW())
+          VALUES (uuid_generate_v4(), $operatorName, ${alertCreate.alert_id}, ${targetModel.target_id}, ${triggerCreate.target}, $operatorConfiguration::JSONB, NOW(), NOW())
           RETURNING *
        """.as(TriggerModel.simple.single)
   }
