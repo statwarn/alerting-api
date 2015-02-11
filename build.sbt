@@ -10,3 +10,6 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm
 )
+
+// We need a specific resolver for Scalaz when using Play! 2.4.0-M2
+resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
