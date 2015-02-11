@@ -14,7 +14,8 @@ object AlertsController extends Controller {
    * @return
    */
   def getAll = Action {
-    implicit request => ???
+    implicit request =>
+      Ok(Json.toJson(AlertRepository.getAll()))
   }
 
   /**
@@ -23,7 +24,12 @@ object AlertsController extends Controller {
    * @return
    */
   def getById(alertId: UUID) = Action {
-    implicit request => ???
+    implicit request =>
+      AlertRepository.getById(alertId).headOption.fold({
+        NotFound: Result
+      })({
+        alert => Ok(Json.toJson(alert))
+      })
   }
 
   /**

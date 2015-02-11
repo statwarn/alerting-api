@@ -1,18 +1,34 @@
 package models
 
 import java.sql.Connection
+import java.util.UUID
 
-import anorm.SqlStringInterpolation
+import anorm.{ParameterValue, NamedParameter, SqlStringInterpolation, SQL}
 import helpers.AnormUUID.uuidToStatement
 import play.api.db.DB
 import play.api.Play.current
 
-import scala.language.postfixOps
+import scala.language.{implicitConversions, postfixOps}
 
 object AlertRepository {
-  def getAll(): Seq[AlertModel] = ???
+  /**
+   * Retrieve all alerts from database
+   * @return
+   */
+  def getAll(): Seq[Alert] = DB.withConnection {
+    implicit connection =>
+      getAlerts()
+  }
 
-  def getById(): Seq[AlertModel] = ???
+  /**
+   * Retrieve the specified alert from database
+   * @param alertId UUID of the alert to retrieve
+   * @return
+   */
+  def getById(alertId: UUID): Seq[Alert] = DB.withConnection {
+    implicit connection =>
+      getAlerts(Some(alertId))
+  }
 
   /**
    * Extract the given alert data and save the alert in DB by inserting the appropriate rows in alert, alert_action and trigger,
@@ -72,5 +88,47 @@ object AlertRepository {
           VALUES (uuid_generate_v4(), $operatorName, ${alertCreate.alert_id}, ${targetModel.target_id}, ${triggerCreate.target}, $operatorConfiguration::JSONB, NOW(), NOW())
           RETURNING *
        """.as(TriggerModel.simple.single)
+  }
+
+  /**
+   * Simple helper used to define dynamic queries, based on criteria.
+   * @param criteria Conditional part of the query, to avoid outputting "None" when not defined
+   * @return
+   */
+  private def opt(criteria: Option[String]): String = {
+    criteria.getOrElse("")
+  }
+
+  /**
+   * Fetch alerts from DB according to specified criteria
+   * @param alertId If defined, will fetch only the alert with the specified id
+   * @return
+   */
+  private def getAlerts(alertId: Option[UUID] = None)(implicit connection: Connection): Seq[Alert] = {
+    def getAlertModels(alertId: Option[UUID]): Seq[AlertModel] = {
+      // Conditionally set which parameters will be passed to the prepared statement
+      val namedParameters = alertId.map(uuid => Seq(NamedParameter("alertId", uuid))).getOrElse(Nil)
+
+      SQL(
+        s"""
+           |SELECT * FROM alert
+           |${opt(alertId.map(_ => s"WHERE alert_id = {alertId}"))}
+       """.stripMargin
+      ).on(namedParameters: _*).as(AlertModel.simple *)
+    }
+
+    // Retrieve instances of AlertModel, TriggerModel, AlertActionModel
+    val alertModels = getAlertModels(alertId)
+    val triggerModels = SQL"""SELECT * FROM trigger WHERE alert_id IN (${alertModels.map(_.alert_id)})""".as(TriggerModel.simple *)
+    val alertActionModels = SQL"""SELECT * FROM alert_action WHERE alert_id IN (${alertModels.map(_.alert_id)})""".as(AlertActionModel.simple *)
+
+    // Group the triggers and actions using their alert_id
+    val triggersByAlertId: Map[UUID, List[TriggerModel]] = triggerModels.groupBy(_.alert_id)
+    val alertActionsByAlertId: Map[UUID, List[AlertActionModel]] = alertActionModels.groupBy(_.alert_id)
+
+    // Build the Alert instances, using the AlertModel and its corresponding TriggerModel's and AlertActionModel's
+    alertModels.map({
+      alertModel => Alert(alertModel, triggersByAlertId.getOrElse(alertModel.alert_id, Nil), alertActionsByAlertId.getOrElse(alertModel.alert_id, Nil))
+    })
   }
 }
