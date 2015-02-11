@@ -50,7 +50,7 @@ object AlertRepository {
     SQL"""
           INSERT INTO alert_action (alert_id, action_id, action_configuration, "createdAt", "updatedAt")
           VALUES (${alertCreate.alert_id}::UUID, $actionType, $actionConfiguration::JSONB, NOW(), NOW())
-          RETURNING *, action_id::text
+          RETURNING *
        """.as(AlertActionModel.simple.single)
   }
 
@@ -69,7 +69,7 @@ object AlertRepository {
     SQL"""
           INSERT INTO trigger (trigger_id, operator_id, alert_id, target_id, target_value, operator_configuration, "createdAt", "updatedAt")
           VALUES (uuid_generate_v4(), $operatorName, ${alertCreate.alert_id}::UUID, ${targetModel.target_id}, ${triggerCreate.target}, $operatorConfiguration::JSONB, NOW(), NOW())
-          RETURNING *, operator_id::TEXT, target_id::TEXT
+          RETURNING *
        """.as(TriggerModel.simple.single)
   }
 }
