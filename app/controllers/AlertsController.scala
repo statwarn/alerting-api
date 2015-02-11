@@ -5,7 +5,7 @@ import java.util.UUID
 import models._
 import play.api.data.{Mapping, Forms, Form}
 import play.api.data.Forms._
-import play.api.libs.json.{JsObject, JsError, Json, JsValue}
+import play.api.libs.json._
 import play.api.mvc._
 
 object AlertsController extends Controller {
@@ -33,11 +33,14 @@ object AlertsController extends Controller {
    */
   def createOrUpdate(alertId: UUID) = Action(BodyParsers.parse.json) {
     implicit request: Request[JsValue] =>
-      request.body.validate[AlertCreate].fold({
-        errors => BadRequest(JsError.toFlatJson(errors))
-      }, {
-        alertCreate => Ok(Json.toJson(AlertRepository.create(alertCreate)))
-      })
+      // Copy the alertId from the route parameter into the JSON
+      request.body.asOpt[JsObject].map({
+        bodyAsObject => (bodyAsObject + ("alert_id" -> JsString(alertId.toString))).validate[AlertCreate].fold({
+          errors => BadRequest(JsError.toFlatJson(errors))
+        }, {
+          alertCreate => Ok(Json.toJson(AlertRepository.create(alertCreate)))
+        })
+      }).getOrElse(BadRequest(Json.obj("message" -> "Invalid JSON format, expecting an object")))
   }
 
   /**
