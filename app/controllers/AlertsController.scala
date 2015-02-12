@@ -28,7 +28,8 @@ object AlertsController extends Controller {
       AlertRepository.getById(alertId).headOption.fold({
         NotFound: Result
       })({
-        alert => Ok(Json.toJson(alert))
+        alert =>
+          alert.alertModel.deletedAt.fold(Ok(Json.toJson(alert)))(_ => Gone)
       })
   }
 

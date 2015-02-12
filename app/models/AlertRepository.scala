@@ -40,7 +40,7 @@ object AlertRepository {
    */
   def getById(alertId: UUID): Seq[Alert] = DB.withConnection {
     implicit connection =>
-      getAlerts(Some(alertId))
+      getAlerts(alertId = Some(alertId), includeDeletedAlerts = true)
   }
 
   /**
@@ -129,36 +129,60 @@ object AlertRepository {
   }
 
   /**
-   * Fetch alerts from DB according to specified criteria
+   * Fetch alerts, triggers, and alert_actions from DB according to specified criteria, and build Alert instances
    * @param alertId If defined, will fetch only the alert with the specified id
    * @return
    */
-  private def getAlerts(alertId: Option[UUID] = None)(implicit connection: Connection): Seq[Alert] = {
-    def getAlertModels(alertId: Option[UUID]): Seq[AlertModel] = {
-      // Conditionally set which parameters will be passed to the prepared statement
-      val namedParameters = alertId.map(uuid => Seq(NamedParameter("alertId", uuid))).getOrElse(Nil)
-
-      SQL(
-        s"""
-           |SELECT * FROM alert
-           |${opt(alertId.map(_ => s"WHERE alert_id = {alertId}"))}
-       """.stripMargin
-      ).on(namedParameters: _*).as(AlertModel.simple *)
-    }
-
+  private def getAlerts(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false)(implicit connection: Connection): Seq[Alert] = {
     // Retrieve instances of AlertModel, TriggerModel, AlertActionModel
-    val alertModels = getAlertModels(alertId)
-    val triggerModels = SQL"""SELECT * FROM trigger WHERE alert_id IN (${alertModels.map(_.alert_id)})""".as(TriggerModel.simple *)
-    val alertActionModels = SQL"""SELECT * FROM alert_action WHERE alert_id IN (${alertModels.map(_.alert_id)})""".as(AlertActionModel.simple *)
+    val alertModels = getAlertModels(alertId = alertId, includeDeletedAlerts = includeDeletedAlerts)
+    val alertIds = alertModels.map(_.alert_id)
 
     // Group the triggers and actions using their alert_id
-    val triggersByAlertId: Map[UUID, List[TriggerModel]] = triggerModels.groupBy(_.alert_id)
-    val alertActionsByAlertId: Map[UUID, List[AlertActionModel]] = alertActionModels.groupBy(_.alert_id)
+    val triggersByAlertId: Map[UUID, Seq[TriggerModel]] = getTriggerModelsForAlertIds(alertIds).groupBy(_.alert_id)
+    val alertActionsByAlertId: Map[UUID, Seq[AlertActionModel]] = getAlertActionModelsForAlertIds(alertIds).groupBy(_.alert_id)
 
     // Build the Alert instances, using the AlertModel and its corresponding TriggerModel's and AlertActionModel's
     alertModels.map({
       alertModel => Alert(alertModel, triggersByAlertId.getOrElse(alertModel.alert_id, Nil), alertActionsByAlertId.getOrElse(alertModel.alert_id, Nil))
     })
+  }
+
+  /**
+   * Fetch alerts from BD.
+   * @param alertId If specified, fetch the alert with the given id
+   * @param includeDeletedAlerts If specified, also include alerts with "deletedAt" set
+   * @param connection SQL connection
+   * @return
+   */
+  private def getAlertModels(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false)(implicit connection: Connection): Seq[AlertModel] = {
+    // Conditionally set which parameters will be passed to the prepared statement
+    val simpleConditions: Seq[String] =
+      Nil ++ (if (!includeDeletedAlerts) Seq("\"deletedAt\" IS NULL") else Nil)
+    val namedParameters: Seq[(String, NamedParameter)] =
+      Nil ++ alertId.map(uuid => Seq(("alert_id = {alertId}", NamedParameter("alertId", uuid)))).getOrElse(Nil)
+
+    // Build the WHERE condition string using the above conditions
+    val conditionsString = simpleConditions ++ namedParameters.map(_._1) match {
+      case Nil => ""
+      case conditions => "WHERE " + conditions.mkString(" AND ")
+    }
+
+    SQL(s"SELECT * FROM alert $conditionsString").on(namedParameters.map(_._2): _*).as(AlertModel.simple *)
+  }
+
+  private def getTriggerModelsForAlertIds(alertIds: Seq[UUID])(implicit connection: Connection): Seq[TriggerModel] = {
+    alertIds match {
+      case Nil => Nil
+      case ids => SQL"""SELECT * FROM trigger WHERE alert_id IN ($alertIds)""".as(TriggerModel.simple *)
+    }
+  }
+
+  private def getAlertActionModelsForAlertIds(alertIds: Seq[UUID])(implicit connection: Connection): Seq[AlertActionModel] = {
+    alertIds match {
+      case Nil => Nil
+      case ids => SQL"""SELECT * FROM alert_action WHERE alert_id IN ($alertIds)""".as(AlertActionModel.simple *)
+    }
   }
 
   /**
