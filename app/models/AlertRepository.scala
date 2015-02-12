@@ -49,8 +49,9 @@ object AlertRepository {
    * @param alertCreate Alert to create
    * @return
    */
-  def create(alertCreate: AlertCreate) = DB.withTransaction {
+  def createOrUpdate(alertCreate: AlertCreate) = DB.withTransaction {
     implicit connection =>
+      deleteAlertWithId(alertCreate.alert_id)
       val alertModel = insertAlert(alertCreate)
       val alertActionModels = alertCreate.actions.map(actionCreate => insertAlertAction(alertCreate, actionCreate))
       val possibleTargets: Seq[TargetModel] = getAllTargets()
@@ -58,8 +59,6 @@ object AlertRepository {
 
       Alert(alertModel, triggerModels, alertActionModels)
   }
-
-  def update(alert: Alert): Boolean = ???
 
   /**
    * Delete the alert with the given id.
@@ -80,6 +79,16 @@ object AlertRepository {
   }
 
   // PRIVATE METHODS
+  /**
+   * Delete (DELETE, not set "deletedAt") the alert with given id from database
+   * @param alertId UUID of the alert to delete
+   * @param connection SQL connection
+   * @return
+   */
+  private def deleteAlertWithId(alertId: UUID)(implicit connection: Connection): Unit = {
+    SQL"""DELETE FROM alert WHERE alert_id = $alertId""".execute()
+  }
+
   private def insertAlert(alertCreate: AlertCreate)(implicit connection: Connection): AlertModel = {
     SQL"""
           INSERT INTO alert (alert_id, name, "createdAt", "updatedAt", activated, measurement_id)

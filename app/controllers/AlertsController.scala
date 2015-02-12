@@ -43,7 +43,7 @@ object AlertsController extends Controller {
         bodyAsObject => (bodyAsObject + ("alert_id" -> JsString(alertId.toString))).validate[AlertCreate].fold({
           errors => BadRequest(JsError.toFlatJson(errors))
         }, {
-          alertCreate => Ok(Json.toJson(AlertRepository.create(alertCreate)))
+          alertCreate => Ok(Json.toJson(AlertRepository.createOrUpdate(alertCreate)))
         })
       }).getOrElse(BadRequest(Json.obj("message" -> "Invalid JSON format, expecting an object")))
   }
