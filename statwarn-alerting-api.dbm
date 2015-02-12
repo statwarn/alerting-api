@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.0-beta1" last-position="794,681" last-zoom="1.9"
+<dbmodel pgmodeler-ver="0.8.0-beta1" last-position="890,599" last-zoom="1.9"
 	 default-schema="public" default-owner="postgres">
 <database name="statwarn-alerting">
 </database>
@@ -170,7 +170,7 @@ defaultConfiguration = {
 </table>
 
 <constraint name="alert_action_alert_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.alert" table="public.alert_action">
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.alert" table="public.alert_action">
 	<columns names="alert_id" ref-type="src-columns"/>
 	<columns names="alert_id" ref-type="dst-columns"/>
 </constraint>
@@ -182,7 +182,7 @@ defaultConfiguration = {
 </constraint>
 
 <constraint name="trigger_alert_id_fkey" type="fk-constr" comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.alert" table="public.trigger">
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.alert" table="public.trigger">
 	<columns names="alert_id" ref-type="src-columns"/>
 	<columns names="alert_id" ref-type="dst-columns"/>
 </constraint>
