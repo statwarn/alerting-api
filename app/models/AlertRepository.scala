@@ -120,15 +120,6 @@ object AlertRepository {
   }
 
   /**
-   * Simple helper used to define dynamic queries, based on criteria.
-   * @param criteria Conditional part of the query, to avoid outputting "None" when not defined
-   * @return
-   */
-  private def opt(criteria: Option[String]): String = {
-    criteria.getOrElse("")
-  }
-
-  /**
    * Fetch alerts, triggers, and alert_actions from DB according to specified criteria, and build Alert instances
    * @param alertId If defined, will fetch only the alert with the specified id
    * @return
