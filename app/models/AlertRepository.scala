@@ -3,14 +3,27 @@ package models
 import java.sql.Connection
 import java.util.UUID
 
-import anorm.{ParameterValue, NamedParameter, SqlStringInterpolation, SQL}
+import anorm.SqlParser.get
+import anorm.{NamedParameter, SQL, SqlStringInterpolation}
 import helpers.AnormUUID.uuidToStatement
-import play.api.db.DB
+import org.joda.time.DateTime
 import play.api.Play.current
+import play.api.db.DB
 
 import scala.language.{implicitConversions, postfixOps}
 
 object AlertRepository {
+  /**
+   * Enumeration describing the result when trying to delete an alert:
+   * - Updated   => The alert has been found and deleted (its 'deletedAt' field has been set)
+   * - Untouched => The alert has been found, but was already deleted (its 'deletedAt' field was already set)
+   * - NotFound  => The alert has not been found
+   */
+  object DeleteResultStatus extends Enumeration {
+    type DeleteResultStatus = Value
+    val Updated, Untouched, NotFound = Value
+  }
+
   /**
    * Retrieve all alerts from database
    * @return
@@ -48,7 +61,23 @@ object AlertRepository {
 
   def update(alert: Alert): Boolean = ???
 
-  def delete(alert: AlertModel): Boolean = ???
+  /**
+   * Delete the alert with the given id.
+   * @see [[models.AlertRepository.DeleteResultStatus]]
+   * @param alertId UUID of the alert to delete
+   * @return DeleteResultStatus describing the result of the attempt to delete the update
+   */
+  def delete(alertId: UUID): DeleteResultStatus.DeleteResultStatus = DB.withTransaction {
+    implicit connection =>
+      val deleteResultStatus = deleteAlertWithId(alertId)
+
+      if (deleteResultStatus == DeleteResultStatus.Updated) {
+        // The alert was found and not already deleted
+        deleteTriggersForAlertId(alertId)
+        deleteAlertActionsForAlertId(alertId)
+      }
+      deleteResultStatus
+  }
 
   // PRIVATE METHODS
   private def insertAlert(alertCreate: AlertCreate)(implicit connection: Connection): AlertModel = {
@@ -130,5 +159,59 @@ object AlertRepository {
     alertModels.map({
       alertModel => Alert(alertModel, triggersByAlertId.getOrElse(alertModel.alert_id, Nil), alertActionsByAlertId.getOrElse(alertModel.alert_id, Nil))
     })
+  }
+
+  /**
+   * Find the alert with the given id and set its "deletedAt" to NOW().
+   * @param alertId UUID of the alert to delete
+   * @param connection SQL connection
+   * @return If the alert was found and not already deleted, DeleteResultStatus.Updated.
+   *         If the alert was found but already deleted, DeleteResultStatus.Untouched.
+   *         If the alert was not found, DeleteResultStatus.NotFound.
+   */
+  private def deleteAlertWithId(alertId: UUID)(implicit connection: Connection): DeleteResultStatus.DeleteResultStatus = {
+    // Update the "deletedAt" for the row matching the given alertId, while retrieving the previous 'deletedAt' value
+    val row: Option[Option[DateTime]] = SQL"""
+            UPDATE alert AS after_update
+            SET "deletedAt" = COALESCE(before_update."deletedAt", NOW())
+            FROM alert AS before_update
+            WHERE after_update.alert_id = $alertId AND after_update.alert_id = before_update.alert_id
+            RETURNING before_update."deletedAt" AS "oldDeletedAt"
+         """.as((get[DateTime]("oldDeletedAt") ?).singleOpt)
+
+    row.map({
+      // the 'deletedAt' column was already set, the alert was already deleted
+      case Some(deletedAt) => DeleteResultStatus.Untouched
+      // the 'deletedAt' column was not already set, the alert has just been deleted
+      case None => DeleteResultStatus.Updated
+    }).getOrElse(DeleteResultStatus.NotFound)
+  }
+
+  /**
+   * Find the trigger with the given alert_id and set its "deletedAt" to NOW().
+   * @param alertId Alert id of the trigger to delete
+   * @param connection SQL connection
+   * @return
+   */
+  private def deleteTriggersForAlertId(alertId: UUID)(implicit connection: Connection): Unit = {
+    SQL"""
+          UPDATE trigger
+          SET "deletedAt" = NOW()
+          WHERE alert_id = $alertId
+       """.executeUpdate()
+  }
+
+  /**
+   * Find the alert action with the given alert_id and set its "deletedAt" to NOW().
+   * @param alertId Alert id of the alert action to delete
+   * @param connection SQL connection
+   * @return
+   */
+  private def deleteAlertActionsForAlertId(alertId: UUID)(implicit connection: Connection): Unit = {
+    SQL"""
+          UPDATE alert_action
+          SET "deletedAt" = NOW()
+          WHERE alert_id = $alertId
+       """.executeUpdate()
   }
 }

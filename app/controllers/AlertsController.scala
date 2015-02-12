@@ -55,6 +55,11 @@ object AlertsController extends Controller {
    * @return
    */
   def delete(alertId: UUID) = Action {
-    implicit request => ???
+    implicit request =>
+      AlertRepository.delete(alertId) match {
+        case AlertRepository.DeleteResultStatus.NotFound => NotFound
+        case AlertRepository.DeleteResultStatus.Untouched => Gone
+        case AlertRepository.DeleteResultStatus.Updated => Ok
+      }
   }
 }
