@@ -52,27 +52,30 @@ Alerts are described using the following JSON format:
 Returns alert with the JSON format described above.
 
 *Status codes:*
-200 OK (resource exists, return the alert in body)
-500 Internal Server Error (error while getting the entity)
-410 Gone (resource does not exist, but existed previously)
-404 Not found (resource never existed)
-406 Not Acceptable (‘accept’ header not supported)
+
+- 200 OK (resource exists, return the alert in body)
+- 500 Internal Server Error (error while getting the entity)
+- 410 Gone (resource does not exist, but existed previously)
+- 404 Not found (resource never existed)
+- 406 Not Acceptable (‘accept’ header not supported)
 
 ### GET /alerts
 
 Returns an array of alerts with the JSON format described above.
 Query string:
-`measurement_id`: uuid -> filter alerts on the specified measurement
-`measurement_ids`: uuid[] -> filter alerts on the specified measurements
-`tag`: string -> filter alerts on the specified tag
-`tags`: string[] -> filter alerts on the specified tags
+
+- `measurement_id`: uuid -> filter alerts on the specified measurement
+- `measurement_ids`: uuid[] -> filter alerts on the specified measurements
+- `tag`: string -> filter alerts on the specified tag
+- `tags`: string[] -> filter alerts on the specified tags
 
 *Status codes:*
-200 OK (get succeeded, return the alerts in body)
-500 Internal Server Error (error while getting the entities)
-410 Gone (resource does not exist, but existed previously)
-404 Not found (resource never existed)
-406 Not Acceptable (‘accept’ header not supported)
+
+- 200 OK (get succeeded, return the alerts in body)
+- 500 Internal Server Error (error while getting the entities)
+- 410 Gone (resource does not exist, but existed previously)
+- 404 Not found (resource never existed)
+- 406 Not Acceptable (‘accept’ header not supported)
 
 ### DELETE /alerts/:alert_id
 Algo: don’t delete, just set to NULL.
@@ -81,10 +84,11 @@ updated_at
 deleted_at => NULL || NOW()
 
 *Status codes:*
-200 OK (delete succeeded, don't return any body)
-500 Internal Server Error (error while deleting the entity)
-410 Gone (ressource does not exists, but excited previously)
-404 Not found (ressource never existed)
+
+- 200 OK (delete succeeded, don't return any body)
+- 500 Internal Server Error (error while deleting the entity)
+- 410 Gone (ressource does not exists, but excited previously)
+- 404 Not found (ressource never existed)
 
 ### PUT /alerts/:alert_id
 
@@ -97,11 +101,12 @@ resource created ? 201
 resource already existed ? 204
 
 *Status codes:*
-201 Created (once the resource is created)
-204 No Content (the resource was updated)
-401 Malformed (schema validation failed)
-// 409 Conflicts (if the alert already exists), http://httpstatus.es/409
-500 Internal Server Error (could not create resource)
+
+- 201 Created (once the resource is created)
+- 204 No Content (the resource was updated)
+- 401 Malformed (schema validation failed)
+- // 409 Conflicts (if the alert already exists), http://httpstatus.es/409
+- 500 Internal Server Error (could not create resource)
 
 ### Triggers
 
