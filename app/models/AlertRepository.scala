@@ -69,12 +69,12 @@ object AlertRepository {
    */
   def delete(alertId: UUID): DeleteResultStatus.DeleteResultStatus = DB.withTransaction {
     implicit connection =>
-      val deleteResultStatus = deleteAlertWithId(alertId)
+      val deleteResultStatus = setAlertWithIdDeleted(alertId)
 
       if (deleteResultStatus == DeleteResultStatus.Updated) {
         // The alert was found and not already deleted
-        deleteTriggersForAlertId(alertId)
-        deleteAlertActionsForAlertId(alertId)
+        setTriggersForAlertIdDeleted(alertId)
+        setAlertActionsForAlertIdDeleted(alertId)
       }
       deleteResultStatus
   }
@@ -184,7 +184,7 @@ object AlertRepository {
    *         If the alert was found but already deleted, DeleteResultStatus.Untouched.
    *         If the alert was not found, DeleteResultStatus.NotFound.
    */
-  private def deleteAlertWithId(alertId: UUID)(implicit connection: Connection): DeleteResultStatus.DeleteResultStatus = {
+  private def setAlertWithIdDeleted(alertId: UUID)(implicit connection: Connection): DeleteResultStatus.DeleteResultStatus = {
     // Update the "deletedAt" for the row matching the given alertId, while retrieving the previous 'deletedAt' value
     val row: Option[Option[DateTime]] = SQL"""
             UPDATE alert AS after_update
@@ -208,7 +208,7 @@ object AlertRepository {
    * @param connection SQL connection
    * @return
    */
-  private def deleteTriggersForAlertId(alertId: UUID)(implicit connection: Connection): Unit = {
+  private def setTriggersForAlertIdDeleted(alertId: UUID)(implicit connection: Connection): Unit = {
     SQL"""
           UPDATE trigger
           SET "deletedAt" = NOW()
@@ -222,7 +222,7 @@ object AlertRepository {
    * @param connection SQL connection
    * @return
    */
-  private def deleteAlertActionsForAlertId(alertId: UUID)(implicit connection: Connection): Unit = {
+  private def setAlertActionsForAlertIdDeleted(alertId: UUID)(implicit connection: Connection): Unit = {
     SQL"""
           UPDATE alert_action
           SET "deletedAt" = NOW()
