@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET           /v1/alerts                 controllers.AlertsController.getAll
+GET           /v1/alerts                 controllers.AlertsController.getAll(measurement_id: Seq[java.util.UUID] ?= Nil)
 GET           /v1/alerts/:alertId        controllers.AlertsController.getById(alertId: java.util.UUID)
 PUT           /v1/alerts/:alertId        controllers.AlertsController.createOrUpdate(alertId: java.util.UUID)
 DELETE        /v1/alerts/:alertId        controllers.AlertsController.delete(alertId: java.util.UUID)

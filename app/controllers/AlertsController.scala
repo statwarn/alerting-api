@@ -11,9 +11,9 @@ object AlertsController extends Controller {
    * Get all alerts
    * @return
    */
-  def getAll = Action {
+  def getAll(measurement_id: Seq[UUID]) = Action {
     implicit request =>
-      Ok(Json.toJson(AlertRepository.getAll()))
+      Ok(Json.toJson(AlertRepository.getAll(measurement_ids = measurement_id)))
   }
 
   /**

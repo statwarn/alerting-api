@@ -28,9 +28,9 @@ object AlertRepository {
    * Retrieve all alerts from database
    * @return
    */
-  def getAll(): Seq[Alert] = DB.withConnection {
+  def getAll(measurement_ids: Seq[UUID] = Nil): Seq[Alert] = DB.withConnection {
     implicit connection =>
-      getAlerts()
+      getAlerts(measurement_ids = measurement_ids)
   }
 
   /**
@@ -133,9 +133,9 @@ object AlertRepository {
    * @param alertId If defined, will fetch only the alert with the specified id
    * @return
    */
-  private def getAlerts(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false)(implicit connection: Connection): Seq[Alert] = {
+  private def getAlerts(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false, measurement_ids: Seq[UUID] = Nil)(implicit connection: Connection): Seq[Alert] = {
     // Retrieve instances of AlertModel, TriggerModel, AlertActionModel
-    val alertModels = getAlertModels(alertId = alertId, includeDeletedAlerts = includeDeletedAlerts)
+    val alertModels = getAlertModels(alertId = alertId, includeDeletedAlerts = includeDeletedAlerts, measurement_ids = measurement_ids)
     val alertIds = alertModels.map(_.alert_id)
 
     // Group the triggers and actions using their alert_id
@@ -155,12 +155,14 @@ object AlertRepository {
    * @param connection SQL connection
    * @return
    */
-  private def getAlertModels(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false)(implicit connection: Connection): Seq[AlertModel] = {
+  private def getAlertModels(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false, measurement_ids: Seq[UUID] = Nil)(implicit connection: Connection): Seq[AlertModel] = {
     // Conditionally set which parameters will be passed to the prepared statement
     val simpleConditions: Seq[String] =
       Nil ++ (if (!includeDeletedAlerts) Seq("\"deletedAt\" IS NULL") else Nil)
-    val namedParameters: Seq[(String, NamedParameter)] =
-      Nil ++ alertId.map(uuid => Seq(("alert_id = {alertId}", NamedParameter("alertId", uuid)))).getOrElse(Nil)
+    val namedParameters: Seq[(String, NamedParameter)] = Seq(
+      alertId.map(uuid => ("alert_id = {alertId}", NamedParameter("alertId", uuid))),
+      if (measurement_ids.nonEmpty) Some(("measurement_id IN ({measurement_ids})", NamedParameter("measurement_ids", measurement_ids))) else None
+    ).flatten
 
     // Build the WHERE condition string using the above conditions
     val conditionsString = simpleConditions ++ namedParameters.map(_._1) match {
