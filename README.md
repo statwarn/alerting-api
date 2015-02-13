@@ -13,13 +13,14 @@ Alerts are described using the following JSON format:
 {
   "id": uuid
   "name": string,
-  "measurement_ids": uuid[],
-  "activation_timeranges": [{
-    "id": uuid,
-    "timeUnit": "day"|"hour"|"minute"|"second",
-    "start": integer
-    "end": integer
-  }],
+  "measurement_id": uuid,
+  // "activation_timeranges": [{
+  //   "id": uuid,
+  //   "timeUnit": "day"|"hour"|"minute"|"second",
+  //   "start": integer
+  //   "end": integer
+  // }],
+  "activated": boolean, // temporary, while activation_timeranges is not supported
   "actions": [{
     // see actions description
   }],
