@@ -65,8 +65,7 @@ Returns alert with the JSON format described above.
 Returns an array of alerts with the JSON format described above.
 Query string:
 
-- `measurement_id`: uuid -> filter alerts on the specified measurement
-- `measurement_ids`: uuid[] -> filter alerts on the specified measurements
+- `measurement_id`: uuid -> filter alerts on the specified measurement (may be specified multiple times to filter on several measurement ids)
 - `tag`: string -> filter alerts on the specified tag
 - `tags`: string[] -> filter alerts on the specified tags
 
