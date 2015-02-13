@@ -73,7 +73,6 @@ Query string:
 
 - 200 OK (get succeeded, return the alerts in body)
 - 500 Internal Server Error (error while getting the entities)
-- 410 Gone (resource does not exist, but existed previously)
 - 404 Not found (resource never existed)
 - 406 Not Acceptable (‘accept’ header not supported)
 
