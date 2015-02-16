@@ -1,5 +1,6 @@
 package publishers
 
+import com.rabbitmq.client.AMQP
 import com.thenewmotion.akka.rabbitmq._
 import models.Alert
 import play.api.Play.{configuration, current}
@@ -11,7 +12,7 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 object AlertChangePublisher {
   object AlertChangeType extends Enumeration {
     type AlertChangeType = Value
-    val Created, Updated, Deleted = Value
+    val Create, Update, Delete = Value
   }
 
   // Connection configuration
@@ -41,17 +42,15 @@ object AlertChangePublisher {
   /**
    * Publish an alert change (alert created/updated/deleted) as JSON on RabbitMQ
    * @param alert Alert to include in the message body
-   * @param alertChangeType Type of change: Created, Updated, or Deleted
+   * @param alertChangeType Type of change: Create, Update, or Delete
    */
   def publishAlertChange(alert: Alert, alertChangeType: AlertChangeType.AlertChangeType): Unit = {
     def publish(channel: Channel): Unit = {
-      val routingKey = alertChangeType match {
-        case AlertChangeType.Created => s"alerts.changed.created.${alert.alertModel.alert_id}"
-        case AlertChangeType.Updated => s"alerts.changed.updated.${alert.alertModel.alert_id}"
-        case AlertChangeType.Deleted => s"alerts.changed.deleted.${alert.alertModel.alert_id}"
-      }
+      val typeHeader = s"application/vnd.com.statwarn.alerting.${alertChangeType.toString.toLowerCase}.v1+json"
+      val routingKey = s"alerts.changed.${alertChangeType.toString.toLowerCase}.${alert.alertModel.alert_id}"
+      val properties = new AMQP.BasicProperties.Builder().`type`(typeHeader).build()
 
-      channel.basicPublish(exchangeName, routingKey, null, Json.toJson(alert).toString().getBytes)
+      channel.basicPublish(exchangeName, routingKey, properties, Json.toJson(alert).toString().getBytes)
     }
     publisherActor ! ChannelMessage(publish, dropIfNoChannel = false)
   }
