@@ -5,6 +5,8 @@ import java.util.UUID
 import models._
 import play.api.libs.json._
 import play.api.mvc._
+import publishers.AlertChangePublisher
+import publishers.AlertChangePublisher.AlertChangeType
 
 object AlertsController extends Controller {
   /**
@@ -43,7 +45,16 @@ object AlertsController extends Controller {
         bodyAsObject => (bodyAsObject + ("alert_id" -> JsString(alertId.toString))).validate[AlertCreate].fold({
           errors => BadRequest(JsError.toFlatJson(errors))
         }, {
-          alertCreate => Ok(Json.toJson(AlertRepository.createOrUpdate(alertCreate)))
+          alertCreate => {
+            val alert = AlertRepository.createOrUpdate(alertCreate)
+            val alertChangeType = if (alert.alertModel.createdAt == alert.alertModel.updatedAt) {
+              AlertChangeType.Create
+            } else {
+              AlertChangeType.Update
+            }
+            AlertChangePublisher.publishAlertChange(alert, alertChangeType)
+            Ok(Json.toJson(alert))
+          }
         })
       }).getOrElse(BadRequest(Json.obj("message" -> "Invalid JSON format, expecting an object")))
   }
