@@ -1,6 +1,6 @@
 package helpers
 
-import java.sql.{SQLType, PreparedStatement}
+import java.sql.PreparedStatement
 import java.util.UUID
 
 import anorm.ToStatement
