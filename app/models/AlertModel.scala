@@ -16,7 +16,7 @@ case class AlertModel(
                        updatedAt: DateTime,
                        deletedAt: Option[DateTime],
                        activated: Boolean,
-                       measurement_id: UUID
+                       measurement_id: String
                        ) {
 }
 
@@ -25,7 +25,7 @@ object AlertModel {
 
   val simple = get[UUID]("alert_id") ~ str("name") ~
     get[DateTime]("createdAt") ~ get[DateTime]("updatedAt") ~ (get[DateTime]("deletedAt") ?) ~
-    bool("activated") ~ get[UUID]("measurement_id") map {
+    bool("activated") ~ get[String]("measurement_id") map {
     case alert_id ~ name ~ createdAt ~ updatedAt ~ deletedAt ~ activated ~ measurement_id =>
       AlertModel(alert_id, name, createdAt, updatedAt, deletedAt, activated, measurement_id)
   }

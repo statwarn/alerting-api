@@ -28,7 +28,7 @@ object AlertRepository {
    * Retrieve all alerts from database
    * @return
    */
-  def getAll(measurement_ids: Seq[UUID] = Nil): Seq[Alert] = DB.withConnection {
+  def getAll(measurement_ids: Seq[String] = Nil): Seq[Alert] = DB.withConnection {
     implicit connection =>
       getAlerts(measurement_ids = measurement_ids)
   }
@@ -133,7 +133,7 @@ object AlertRepository {
    * @param alertId If defined, will fetch only the alert with the specified id
    * @return
    */
-  private def getAlerts(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false, measurement_ids: Seq[UUID] = Nil)(implicit connection: Connection): Seq[Alert] = {
+  private def getAlerts(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false, measurement_ids: Seq[String] = Nil)(implicit connection: Connection): Seq[Alert] = {
     // Retrieve instances of AlertModel, TriggerModel, AlertActionModel
     val alertModels = getAlertModels(alertId = alertId, includeDeletedAlerts = includeDeletedAlerts, measurement_ids = measurement_ids)
     val alertIds = alertModels.map(_.alert_id)
@@ -155,7 +155,7 @@ object AlertRepository {
    * @param connection SQL connection
    * @return
    */
-  private def getAlertModels(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false, measurement_ids: Seq[UUID] = Nil)(implicit connection: Connection): Seq[AlertModel] = {
+  private def getAlertModels(alertId: Option[UUID] = None, includeDeletedAlerts: Boolean = false, measurement_ids: Seq[String] = Nil)(implicit connection: Connection): Seq[AlertModel] = {
     // Conditionally set which parameters will be passed to the prepared statement
     val simpleConditions: Seq[String] =
       Nil ++ (if (!includeDeletedAlerts) Seq("\"deletedAt\" IS NULL") else Nil)

@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
          Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.8.0-beta1" last-position="889,598" last-zoom="1.9"
+<dbmodel pgmodeler-ver="0.8.0-beta1" last-position="621,522" last-zoom="1.9"
 	 default-schema="public" default-owner="postgres">
 <database name="statwarn-alerting">
 </database>
@@ -34,7 +34,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="boolean"/>
 	</column>
 	<column name="measurement_id" not-null="true">
-		<type name="uuid"/>
+		<type name="text"/>
 	</column>
 	<constraint name="alert_alert_id_pkey" type="pk-constr" table="public.alert">
 		<columns names="alert_id" ref-type="src-columns"/>
