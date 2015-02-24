@@ -7,7 +7,7 @@ import play.api.libs.json.{Json, Format, JsObject}
 case class AlertCreate(
                         alert_id: UUID,
                         name: String,
-                        measurement_id: UUID,
+                        measurement_id: String,
                         activated: Boolean,
                         actions: Seq[ActionCreate],
                         triggers: Seq[TriggerCreate]
