@@ -3,6 +3,7 @@ package publishers
 import com.rabbitmq.client.AMQP
 import com.thenewmotion.akka.rabbitmq._
 import models.Alert
+import play.api.Logger
 import play.api.Play.{configuration, current}
 import play.api.libs.json.Json
 import play.libs.Akka
@@ -28,6 +29,14 @@ object AlertChangePublisher {
     factory.setVirtualHost(configuration.getString("amqp.virtualhost").get)
     factory.setHost(configuration.getString("amqp.host").get)
     factory.setPort(configuration.getInt("amqp.port").get)
+
+    // Debug
+    Logger.info(s"ConnectionFactory: username: ${factory.getUsername}")
+    Logger.info(s"ConnectionFactory: password: ${factory.getPassword}")
+    Logger.info(s"ConnectionFactory: virtualhost: ${factory.getVirtualHost}")
+    Logger.info(s"ConnectionFactory: host: ${factory.getHost}")
+    Logger.info(s"ConnectionFactory: port: ${factory.getPort}")
+
     factory
   }
 
