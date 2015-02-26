@@ -32,19 +32,19 @@ Alerts are described using the following JSON format:
 
 ### Actions
 
-```json
+```javascript
 {
   "id": uuid,
-   "type": "webhook",
-   "webhook": {
+  "type": "webhook",
+  "webhook": {
     "url": "",
     // oauth2
-},
-   "ratelimits": [{
-     "timeUnit": "day"|"hour"|"minute"|"second",
-     "timeValue": integer,
-     "maxTriggers": integer
-   }]
+  },
+  "ratelimits": [{
+    "timeUnit": "day" | "hour" | "minute" | "second",
+    "timeValue": integer,
+    "maxTriggers": integer
+  }]
 }
 ```
 
@@ -65,7 +65,7 @@ Returns alert with the JSON format described above.
 Returns an array of alerts with the JSON format described above.
 Query string:
 
-- `measurement_id`: uuid -> filter alerts on the specified measurement (may be specified multiple times to filter on several measurement ids)
+- `measurement_id`: string -> filter alerts on the specified measurement (may be specified multiple times to filter on several measurement ids)
 - `tag`: string -> filter alerts on the specified tag
 - `tags`: string[] -> filter alerts on the specified tags
 
@@ -113,92 +113,85 @@ Triggers analyze the data (or the absence of data) recorded by your measurements
 
 #### no_data
 A `no_data` trigger is defined using the following JSON structure :
-```json
+```javascript
 {
   "operator": {
-	  "name" : "no_data",
-	  "rate": {
-	    "timeUnit": "day"|"hour"|"minute"|"second",
-	    "timeValue": integer
-	  }
+    "name": "no_data",
+    "rate": {
+      "timeUnit": "day" | "hour" | "minute" | "second",
+      "timeValue": integer
+    }
   },
-  "target": "data"|"data.X"
+  "target": "data" | "data.X"
 }
 ```
 
 #### any_data
 
 An `any_data` trigger is defined using the following JSON structure :
-```json
+```javascript
 {
   "operator": {
     "name": "any_data",
     "rate": {
-      "timeUnit": "day"|"hour"|"minute"|"second",
+      "timeUnit": "day" | "hour" | "minute" | "second",
       "timeValue": integer
     }
   },
-  "target": "data"|"data.X"
+  "target": "data" | "data.X"
 }
 ```
 
 #### anomalous
 `anomalous` trigger is defined using the following JSON structure :
-```json
+```javascript
 {
   "operator": {
-	  "name" : "anomalous"
+    "name": "anomalous"
   },
-  "target": "data"|"data.X"
+  "target": "data" | "data.X"
 }
 ```
 
 #### value
-```json
+```javascript
 {
   "operator": {
-	  "name" : "threshold_min",
-	  "duration" : {
-		“timeUnit”: “day”|”hour”|”minute”|”second”,
-		“timeValue”: integer
-},
+    "name": "threshold_min",
+    "duration": {
+      "timeUnit": "day" | "hour" | "minute" | "second",
+      "timeValue": integer
+    }
   },
-  "target": "data"|"data.X",
-  "value": number,
+  "target": "data" | "data.X",
+  "value": number
 }
 ```
 
-```json
+```javascript
 {
   "operator": {
-	  "name" : "equal"
-	  "duration" : {
-		“timeUnit”: “day”|”hour”|”minute”|”second”,
-		“timeValue”: integer
-},
+    "name": "equal",
+    "duration": {
+      "timeUnit": "day" | "hour" | "minute" | "second",
+      "timeValue": integer
+    },
   },
-  "target": "data"|"data.X",
-  "value": number,
+  "target": "data" | "data.X",
+  "value": number
 }
 ```
 
-
-
-
-
-
-
-
-```json
+```javascript
 {
   "operator": {
-	  "name" : "threshold_max"
-	  "duration" : {
-		“timeUnit”: “day”|”hour”|”minute”|”second”,
-		“timeValue”: integer
-},
+    "name": "threshold_max"
+    "duration": {
+      "timeUnit": "day" | "hour" | "minute" | "second",
+      "timeValue": integer
+    },
   },
-  "target": "data"|"data.X",
+  "target": "data" | "data.X",
   "value": number,
 }
 ```
@@ -208,15 +201,14 @@ An `any_data` trigger is defined using the following JSON structure :
 `newValue`trigger is defined using the following JSON structure :
 
 
-```json
+```javascript
 {
   "operator": {
-	  "name" : "newValue"
+    "name": "newValue"
   },
   "target": "data"
 }
 ```
-
 
 
 
