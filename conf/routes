@@ -2,6 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Implement the OPTIONS method to support preflight requests
+OPTIONS       /                          controllers.OptionsController.options(path: String = "")
+OPTIONS       /*path                     controllers.OptionsController.options(path: String)
+
 # Alerts
 GET           /v1/alerts                 controllers.AlertsController.getAll(measurement_id: Seq[String] ?= Nil)
 GET           /v1/alerts/:alertId        controllers.AlertsController.getById(alertId: java.util.UUID)
