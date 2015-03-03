@@ -14,4 +14,19 @@ object Target {
       }
     })
   }
+
+  /**
+   * Substitute a wildcard target_id with the given field
+   * @example
+   * {{{
+   *   Target.substituteWildcard("data.*", "foo")
+   *   -> "data.foo"
+   * }}}
+   * @param target_id Target id containing the wildcard
+   * @param field Field to substitute
+   * @return
+   */
+  def substituteWildcard(target_id: String, field: String): String = {
+    target_id.replace("*", field)
+  }
 }
