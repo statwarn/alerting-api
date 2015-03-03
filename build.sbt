@@ -8,7 +8,8 @@ scalaVersion := "2.11.1"
 
 libraryDependencies ++= Seq(
   jdbc,
-  anorm
+  anorm,
+  ws
 )
 
 // We need a specific resolver for Scalaz when using Play! 2.4.0-M2
