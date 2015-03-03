@@ -1,7 +1,9 @@
 package models
 
-import anorm.SqlParser.str
-import anorm.{SqlStringInterpolation, ~}
+import anorm.SqlParser.get
+import anorm.~
+import helpers.AnormCIText.rowToCIText
+import helpers.CIText
 import play.api.libs.json.Json
 
 import scala.language.postfixOps
@@ -18,7 +20,7 @@ object OperatorModel {
   /**
    * Simple Anorm RowParser to extract all fields from the 'operator' table
    */
-  val simple = str("operator_id") ~ OperatorConfigurationModel.simple("defaultConfiguration") map {
+  val simple = get[CIText]("operator_id") ~ OperatorConfigurationModel.simple("defaultConfiguration") map {
     case operator_id ~ defaultConfiguration =>
       OperatorModel(operator_id, defaultConfiguration)
   }
