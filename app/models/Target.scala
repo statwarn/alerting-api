@@ -1,6 +1,28 @@
 package models
 
+import play.api.libs.json.{Format, Json}
+
+/**
+ * Represents a target-operator pair, for example "data.foo" with operator "threshold_min"
+ * @param target Target data or metadata field (e.g. "data.foo")
+ * @param operator Associated operator
+ */
+case class Target(target: String, operator: OperatorModel)
+
 object Target {
+  implicit val jsonFormat: Format[Target] = Json.format[Target]
+
+  /**
+   * Shortcut for calling Target(Target.substituteWildcard(..., ...), operator)
+   * @param wildcardTargetId
+   * @param targetField
+   * @param operator
+   * @return
+   */
+  def withWildcardTargetId(wildcardTargetId: String, targetField: String, operator: OperatorModel): Target = {
+    Target(Target.substituteWildcard(wildcardTargetId, targetField), operator)
+  }
+
   def findTargetTypeForTargetValue(targetValue: String, targetTypes: Seq[TargetModel]): Option[TargetModel] = {
     targetTypes
       .find(_.target_id == targetValue) // First easy case, if the target value is "data" or "data.*"
