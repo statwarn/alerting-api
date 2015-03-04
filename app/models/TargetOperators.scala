@@ -3,24 +3,25 @@ package models
 import play.api.libs.json.{Format, Json}
 
 /**
- * Represents a target-operator pair, for example "data.foo" with operator "threshold_min"
+ * Represents a target and the operators that can be applied to it,
+ * for example "data.foo" with operators "equal", "threshold_min", "threshold_max", etc.
  * @param target Target data or metadata field (e.g. "data.foo")
- * @param operator Associated operator
+ * @param operators Associated operators
  */
-case class Target(target: String, operator: OperatorModel)
+case class TargetOperators(target: String, operators: Seq[OperatorModel])
 
-object Target {
-  implicit val jsonFormat: Format[Target] = Json.format[Target]
+object TargetOperators {
+  implicit val jsonFormat: Format[TargetOperators] = Json.format[TargetOperators]
 
   /**
-   * Shortcut for calling Target(Target.substituteWildcard(..., ...), operator)
+   * Shortcut for calling Target(Target.substituteWildcard(..., ...), operators)
    * @param wildcardTargetId
    * @param targetField
-   * @param operator
+   * @param operators
    * @return
    */
-  def withWildcardTargetId(wildcardTargetId: String, targetField: String, operator: OperatorModel): Target = {
-    Target(Target.substituteWildcard(wildcardTargetId, targetField), operator)
+  def withWildcardTargetId(wildcardTargetId: String, targetField: String, operators: Seq[OperatorModel]): TargetOperators = {
+    TargetOperators(TargetOperators.substituteWildcard(wildcardTargetId, targetField), operators)
   }
 
   def findTargetTypeForTargetValue(targetValue: String, targetTypes: Seq[TargetModel]): Option[TargetModel] = {

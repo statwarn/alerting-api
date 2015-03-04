@@ -15,16 +15,16 @@ object TargetRepository {
    * @param dataFields Data fields (e.g. "foo", "bar")
    * @return
    */
-  def getByTargetFields(dataFields: Seq[String]): Seq[Target] = DB.withConnection {
+  def getByTargetFields(dataFields: Seq[String]): Seq[TargetOperators] = DB.withConnection {
     implicit connection =>
-      getTargetsAndOperators() map {
+      getTargetsAndOperators().toSeq map {
         // If the target is a wildcard, associate that target for all given dataFields
-        case (TargetModel(target_id, true), operator) =>
-          dataFields.map(dataField => Target.withWildcardTargetId(target_id, dataField, operator))
+        case (TargetModel(target_id, true), operators) =>
+          dataFields.map(dataField => TargetOperators.withWildcardTargetId(target_id, dataField, operators))
 
         // If the target is not a wildcard (e.g. "data"), use it as-is
-        case (TargetModel(target_id, false), operator) =>
-          Seq(Target(target_id, operator))
+        case (TargetModel(target_id, false), operators) =>
+          Seq(TargetOperators(target_id, operators))
       } flatten
   }
 
@@ -37,11 +37,11 @@ object TargetRepository {
    * @param connection SQL connection
    * @return
    */
-  def getTargetsAndOperators()(implicit connection: Connection): Seq[(TargetModel, OperatorModel)] = {
+  def getTargetsAndOperators()(implicit connection: Connection): Map[TargetModel, Seq[OperatorModel]] = {
     SQL"""
           SELECT * FROM target
           JOIN operator_target USING(target_id)
           JOIN operator USING(operator_id)
-       """ as(((TargetModel.simple ~ OperatorModel.simple) map flatten) *)
+       """ as(((TargetModel.simple ~ OperatorModel.simple) map flatten) *) groupBy(_._1) mapValues(_.unzip._2)
   }
 }

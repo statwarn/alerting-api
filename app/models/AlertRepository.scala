@@ -119,7 +119,7 @@ object AlertRepository {
     val operatorConfiguration = (triggerCreate.operator - "name").toString()
 
     // Find which target corresponds to the given target value, if no target is found, an exception is raised and the transaction rolled back
-    val targetModel = Target.findTargetTypeForTargetValue(triggerCreate.target, possibleTargets).ensuring(_.isDefined, s"Invalid target value ${triggerCreate.target}").get
+    val targetModel = TargetOperators.findTargetTypeForTargetValue(triggerCreate.target, possibleTargets).ensuring(_.isDefined, s"Invalid target value ${triggerCreate.target}").get
 
     SQL"""
           INSERT INTO trigger (trigger_id, operator_id, alert_id, target_id, target_value, operator_configuration, "createdAt", "updatedAt")
