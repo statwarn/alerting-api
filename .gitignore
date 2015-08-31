@@ -89,3 +89,4 @@ crashlytics.properties
 crashlytics-build.properties
 
 .env
+.clever.json
